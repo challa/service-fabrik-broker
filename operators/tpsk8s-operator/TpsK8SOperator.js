@@ -35,10 +35,10 @@ class TpsK8SOperator extends BaseOperator {
         }
       })
       .catch(err => {
-        logger.error('Error occurred in processing request by DockerOperator', err);
+        logger.error('Error occurred in processing request by TpsK8SOperator', err);
         return eventmesh.apiServerClient.updateResource({
           resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-          resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+          resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
           resourceId: changeObjectBody.metadata.name,
           status: {
             state: CONST.APISERVER.RESOURCE_STATE.FAILED,
@@ -53,12 +53,12 @@ class TpsK8SOperator extends BaseOperator {
     assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
-    logger.info('Creating docker resource with the following options:', changedOptions);
-    return DockerService.createInstance(changeObjectBody.metadata.name, changedOptions)
-      .then(dockerService => dockerService.create(changedOptions))
+    logger.info('Creating TPSK8S resource with the following options:', changedOptions);
+    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+      .then(tpsK8SService => tpsK8SService.create(changedOptions))
       .then(response => eventmesh.apiServerClient.updateResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
         resourceId: changeObjectBody.metadata.name,
         status: {
           response: response,
@@ -72,12 +72,12 @@ class TpsK8SOperator extends BaseOperator {
     assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
-    logger.info('Updating docker resource with the following options:', changedOptions);
-    return DockerService.createInstance(changeObjectBody.metadata.name, changedOptions)
-      .then(dockerService => dockerService.update(changedOptions))
+    logger.info('Updating TpsK8S resource with the following options:', changedOptions);
+    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+      .then(tpsK8SService => tpsK8SService.update(changedOptions))
       .then(response => eventmesh.apiServerClient.updateResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
         resourceId: changeObjectBody.metadata.name,
         status: {
           response: response,
@@ -91,21 +91,21 @@ class TpsK8SOperator extends BaseOperator {
     assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
-    logger.info('Deleting docker resource with the following options:', changedOptions);
-    return DockerService.createInstance(changeObjectBody.metadata.name, changedOptions)
-      .then(dockerService => dockerService.delete(changedOptions))
+    logger.info('Deleting TpsK8S resource with the following options:', changedOptions);
+    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+      .then(tpsK8SService => tpsK8SService.delete(changedOptions))
       .then(() => eventmesh.apiServerClient.deleteResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
         resourceId: changeObjectBody.metadata.name
       }))
       .catch(ServiceInstanceNotFound, () => eventmesh.apiServerClient.deleteResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
         resourceId: changeObjectBody.metadata.name
       }));
   }
 }
 
-module.exports = DockerOperator;
+module.exports = TpsK8SOperator;
 
