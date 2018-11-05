@@ -284,6 +284,7 @@ module.exports = Object.freeze({
       VIRTUALHOST: 'virtualhosts',
       DIRECTOR_BIND: 'directorbinds',
       DOCKER_BIND: 'dockerbinds',
+      TPSK8S_BIND: 'tpsk8sbinds',
       VIRTUALHOST_BIND: 'virtualhostbinds',
       DEFAULT_BACKUP: 'defaultbackups',
       DEFAULT_RESTORE: 'defaultrestores'
