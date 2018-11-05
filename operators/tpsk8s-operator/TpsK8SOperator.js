@@ -7,16 +7,16 @@ const logger = require('../../common/logger');
 const CONST = require('../../common/constants');
 const utils = require('../../common/utils');
 const BaseOperator = require('../BaseOperator');
-const DockerService = require('./DockerService');
+const TpsK8SService = require('./TpsK8SService');
 const errors = require('../../common/errors');
 const ServiceInstanceNotFound = errors.ServiceInstanceNotFound;
 
-class DockerOperator extends BaseOperator {
+class TpsK8SOperator extends BaseOperator {
 
   init() {
     const validStateList = [CONST.APISERVER.RESOURCE_STATE.IN_QUEUE, CONST.APISERVER.RESOURCE_STATE.UPDATE, CONST.APISERVER.RESOURCE_STATE.DELETE];
-    return this.registerCrds(CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT, CONST.APISERVER.RESOURCE_TYPES.DOCKER)
-      .then(() => this.registerWatcher(CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT, CONST.APISERVER.RESOURCE_TYPES.DOCKER, validStateList));
+    return this.registerCrds(CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT, CONST.APISERVER.RESOURCE_TYPES.TPSK8S)
+      .then(() => this.registerWatcher(CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT, CONST.APISERVER.RESOURCE_TYPES.TPSK8S, validStateList));
   }
 
   processRequest(changeObjectBody) {
