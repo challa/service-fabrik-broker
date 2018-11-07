@@ -213,6 +213,7 @@ defaults: &defaults
       "bind.servicefabrik.io_v1alpha1_dockerbinds.yaml": <%= base64_template('crds/bind.servicefabrik.io_v1alpha1_dockerbinds.yaml') %>
       "backup.servicefabrik.io_v1alpha1_defaultbackups.yaml": <%= base64_template('crds/backup.servicefabrik.io_v1alpha1_defaultbackups.yaml') %>
       "deployment.servicefabrik.io_v1alpha1_dockers.yaml": <%= base64_template('crds/deployment.servicefabrik.io_v1alpha1_dockers.yaml') %>
+      "deployment.servicefabrik.io_v1alpha1_tpssk8s.yaml": <%= base64_template('crds/deployment.servicefabrik.io_v1alpha1_tpssk8s.yaml') %>
       "deployment.servicefabrik.io_v1alpha1_virtualhosts.yaml": <%= base64_template('crds/deployment.servicefabrik.io_v1alpha1_virtualhosts.yaml') %>
       "bind.servicefabrik.io_v1alpha1_virtualhostbinds.yaml": <%= base64_template('crds/bind.servicefabrik.io_v1alpha1_virtualhostbinds.yaml') %>
 
@@ -431,7 +432,7 @@ defaults: &defaults
   cf: &cf
     url: https://api.bosh-lite.com
     username: admin
-    password: admin
+    password: j3wvja8avz5d5k5w4tl2
   
   ###################
   # DOCKER SETTINGS #

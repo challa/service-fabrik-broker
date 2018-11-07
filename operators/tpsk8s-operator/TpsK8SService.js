@@ -16,7 +16,7 @@ const config = require('../../common/config');
 const BaseService = require('../BaseService');
 const BasePlatformManager = require('../../platform-managers/BasePlatformManager');
 
-class DockerService extends BaseService {
+class TpsK8SService extends BaseService {
   constructor(guid, plan) {
     super(plan);
     this.guid = guid;
@@ -36,46 +36,18 @@ class DockerService extends BaseService {
     const options = {
       context: params.context
     };
-    return this
-      .buildContainerOptions(parameters, exposedPorts, options)
-      .then(opts => this.createAndStartContainer(opts, true))
-      .catchThrow(DockerError.Conflict, new ServiceInstanceAlreadyExists(this.guid))
-      .then(() => this.ensureContainerIsRunning(true))
-      .then(() => this.platformManager.postInstanceProvisionOperations({
-        ipRuleOptions: this.buildIpRules(),
-        guid: this.guid,
-        context: params.context
-      }));
+    
   }
 
   update(params) {
     const parameters = params.parameters;
     let exposedPorts;
     const options = {};
-    return this
-      .inspectContainer()
-      .tap(containerInfo => {
-        exposedPorts = containerInfo.Config.ExposedPorts;
-        options.portBindings = containerInfo.HostConfig.PortBindings;
-        options.environment = this.getEnvironment();
-      })
-      .catchThrow(DockerError.NotFound, new ServiceInstanceNotFound(this.guid))
-      .then(() => this.removeContainer())
-      .then(() => this.buildContainerOptions(parameters, exposedPorts, options))
-      .then(opts => this.createAndStartContainer(opts, false))
-      .then(() => this.ensureContainerIsRunning(false));
   }
 
   delete(params) {
     /* jshint unused:false */
-    return Promise.try(() => this
-        .platformManager.preInstanceDeleteOperations({
-          guid: this.guid
-        })
-      )
-      .then(() => this.removeContainer())
-      .catchThrow(DockerError.NotFound, new ServiceInstanceNotFound(this.guid))
-      .then(() => this.removeVolumes());
+
   }
 
   bind(params) {
@@ -89,5 +61,6 @@ class DockerService extends BaseService {
   unbind(params) {
     /* jshint unused:false */
   }
+}
   
-  module.exports = TpsK8SService;
+module.exports = TpsK8SService;

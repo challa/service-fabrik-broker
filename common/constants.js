@@ -280,7 +280,7 @@ module.exports = Object.freeze({
       DEPLOYMENT_LOCKS: 'deploymentlocks',
       DIRECTOR: 'directors',
       DOCKER: 'dockers',
-      TPSK8S: 'tpsk8s',
+      TPSK8S: 'tpssk8s',
       VIRTUALHOST: 'virtualhosts',
       DIRECTOR_BIND: 'directorbinds',
       DOCKER_BIND: 'dockerbinds',
