@@ -577,7 +577,7 @@ defaults: &defaults
     # K8S SERVICE PLANS #
     ###########################
     - &mysql_plan1
-      id: '466c5018-df6e-427d-8fb2-c76af50c0f56'
+      id: '466c2018-df6e-427d-8fb2-c76af50c0f56'
       name: 'v1.0-dev'
       free: true
       manager:
