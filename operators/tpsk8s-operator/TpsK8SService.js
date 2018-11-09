@@ -15,6 +15,8 @@ const assert = require('assert');
 const config = require('../../common/config');
 const BaseService = require('../BaseService');
 const BasePlatformManager = require('../../platform-managers/BasePlatformManager');
+const nrc = require('node-run-cmd');
+
 
 class TpsK8SService extends BaseService {
   constructor(guid, plan) {
@@ -31,11 +33,25 @@ class TpsK8SService extends BaseService {
   }
 
 
+  static createInstance(instanceId, options) {
+    const planId = options.plan_id;
+    const plan = catalog.getPlan(planId);
+    const context = _.get(options, 'context');
+    const tpsK8SService = new TpsK8SService(instanceId, plan);
+    return tpsK8SService;
+  }
+
+
   create(params) {
+
+    nrc.run('kubectl apply -f  https://raw.githubusercontent.com/challa/k8sdeployments/master/mysql.yaml');
+
     const parameters = params.parameters;
     const options = {
       context: params.context
     };
+
+    return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
     
   }
 
@@ -46,8 +62,7 @@ class TpsK8SService extends BaseService {
   }
 
   delete(params) {
-    /* jshint unused:false */
-
+    return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
   }
 
   bind(params) {
