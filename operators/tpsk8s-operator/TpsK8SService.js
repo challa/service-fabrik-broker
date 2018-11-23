@@ -16,6 +16,14 @@ const config = require('../../common/config');
 const BaseService = require('../BaseService');
 const BasePlatformManager = require('../../platform-managers/BasePlatformManager');
 const nrc = require('node-run-cmd');
+const kc = require('kubernetes-client');
+const config = require('../../common/config');
+const Client = require('kubernetes-client').Client;
+const config = require('kubernetes-client').config;
+sampleDeployment = require('./cache_v1alpha_couchdb_cr.json');
+const crdJson =  require('./crd.json');
+
+
 
 
 class TpsK8SService extends BaseService {
@@ -41,19 +49,37 @@ class TpsK8SService extends BaseService {
     return tpsK8SService;
   }
 
-
   create(params) {
+    containerName = getContainerName();
+    sampleDeployment.metadata.name=containerName;
+    client.addCustomResourceDefinition(crdJson); 
+    client.loadSpec()
+      .then(()=> client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.post({ body: sampleDeployment }))
 
-    nrc.run('kubectl apply -f  https://raw.githubusercontent.com/challa/k8sdeployments/master/mysql.yaml');
 
-    const parameters = params.parameters;
-    const options = {
-      context: params.context
-    };
 
-    return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
-    
+  
+
+   }
+
+
+   getContainerName() {
+    return `${this.prefix}-${this.guid}`;
   }
+
+
+
+  // create(params) {
+
+  //   nrc.run('kubectl apply -f  https://raw.githubusercontent.com/challa/k8sdeployments/master/mysql.yaml');
+
+  //   const parameters = params.parameters;
+  //   const options = {
+  //     context: params.context
+  //   };
+
+  //   return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
+  // }
 
   update(params) {
     const parameters = params.parameters;
@@ -62,6 +88,8 @@ class TpsK8SService extends BaseService {
   }
 
   delete(params) {
+
+    nrc.run('kubectl -n my-namespace delete mysqlclusters my-app-db2')
     return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
   }
 

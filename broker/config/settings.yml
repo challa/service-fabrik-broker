@@ -548,49 +548,49 @@ defaults: &defaults
   #####################
   - &mysql_service
     id: '24731f69-7b84-4f57-914f-c3d55d793dd4'
-    name: 'mysql'
-    description: &description 'mysql'
+    name: 'couchdb'
+    description: &description 'couchdb'
     bindable: true
     tags:
-    - 'mysql'
+    - 'couchdb'
     - 'no-not-use'
     metadata:
-      displayName: 'mysql'
+      displayName: 'couchdb'
       longDescription: *description
       providerDisplayName: 'SAP SE'
       documentationUrl: 'https://sap.com/'
       supportUrl: 'https://sap.com/'
     dashboard_client:
-      id: 'service-fabrik-mysql-client'
-      secret: 'service-fabrik-mysql-secret'
+      id: 'service-fabrik-couchdb-client'
+      secret: 'service-fabrik-couchdb-secret'
       redirect_uri: <%= redirect_uri %>
     plan_updateable: true
     supported_platform:
     - k8s
     - cf
     - sm
-    actions: mysql
+    actions: couchdb
     backup_interval: '8 hours'
     pitr: true
     plans:
     ###########################
     # K8S SERVICE PLANS #
     ###########################
-    - &mysql_plan1
+    - &couchdb_plan1
       id: '466c2018-df6e-427d-8fb2-c76af50c0f56'
       name: 'v1.0-dev'
       free: true
       manager:
         name: 'tpsk8s'
         async: false
-        resource_mappings: &mysql_resource_mappings
+        resource_mappings: &couchdb_resource_mappings
           resource_group: 'deployment.servicefabrik.io'
           resource_type: 'tpssk8s'
           bind:
             resource_group: 'bind.servicefabrik.io'
             resource_type: 'tpssk8s'
         settings:
-          image: 'servicefabrikjenkins/mysql'
+          deployment : 'https://github.com/challa/k8sdeployments/blob/master/mysql.yaml'
           tag: 'latest'
           memory: '128m'
           persistent_volumes:

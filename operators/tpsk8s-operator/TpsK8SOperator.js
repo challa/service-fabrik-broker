@@ -48,26 +48,46 @@ class TpsK8SOperator extends BaseOperator {
       });
   }
 
+  // _processCreate(changeObjectBody) {
+  //   assert.ok(changeObjectBody.metadata.name, `Argument 'metadata.name' is required to process the request`);
+  //   assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
+  //   const changedOptions = JSON.parse(changeObjectBody.spec.options);
+  //   assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
+  //   logger.info('Creating TPSK8S resource with the following options:', changedOptions);
+
+  //   var tpsK8SService = TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+  //   tpsK8SService.create(changedOptions);
+
+  //   eventmesh.apiServerClient.updateResource({
+  //     resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
+  //     resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
+  //     resourceId: changeObjectBody.metadata.name,
+  //     status: {
+  //       response: "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf",
+  //       state: CONST.APISERVER.RESOURCE_STATE.SUCCEEDED
+  //     }
+  //   })
+
+  // }
+
   _processCreate(changeObjectBody) {
     assert.ok(changeObjectBody.metadata.name, `Argument 'metadata.name' is required to process the request`);
     assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
-    logger.info('Creating TPSK8S resource with the following options:', changedOptions);
+    logger.info('Creating tpsk8s resource with the following options:', changedOptions);
 
-    var tpsK8SService = TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
-    tpsK8SService.create(changedOptions);
-
-    eventmesh.apiServerClient.updateResource({
-      resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-      resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
-      resourceId: changeObjectBody.metadata.name,
-      status: {
-        response: "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf",
-        state: CONST.APISERVER.RESOURCE_STATE.SUCCEEDED
-      }
-    })
-
+    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+      .then(tpsK8SService => tpsK8SService.create(changedOptions))
+      .then(response => eventmesh.apiServerClient.updateResource({
+        resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceId: changeObjectBody.metadata.name,
+        status: {
+          response: response,
+          state: CONST.APISERVER.RESOURCE_STATE.SUCCEEDED
+        }
+      }));
   }
 
   _processUpdate(changeObjectBody) {

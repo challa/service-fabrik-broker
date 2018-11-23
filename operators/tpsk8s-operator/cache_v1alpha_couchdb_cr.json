@@ -1,0 +1,10 @@
+{
+	"apiVersion": "cache.example.com/v1alpha1",
+	"kind": "Couchdb",
+	"metadata": {
+		"name": "REPLACE_NAME"
+	},
+	"spec": {
+		"size": 3
+	}
+}
