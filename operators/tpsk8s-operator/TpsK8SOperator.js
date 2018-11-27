@@ -81,10 +81,10 @@ class TpsK8SOperator extends BaseOperator {
       .then(tpsK8SService => tpsK8SService.create(changedOptions))
       .then(response => eventmesh.apiServerClient.updateResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-        resourceType: CONST.APISERVER.RESOURCE_TYPES.DOCKER,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
         resourceId: changeObjectBody.metadata.name,
         status: {
-          response: response,
+          response: "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf",
           state: CONST.APISERVER.RESOURCE_STATE.SUCCEEDED
         }
       }));
@@ -114,22 +114,21 @@ class TpsK8SOperator extends BaseOperator {
     assert.ok(changeObjectBody.spec.options, `Argument 'spec.options' is required to process the request`);
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
-    logger.info('Deleting TpsK8S resource with the following options:', changedOptions);
-
-    var tpsK8SService = TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
-    tpsK8SService.create(changedOptions);
-
-    eventmesh.apiServerClient.updateResource({
-      resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
-      resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
-      resourceId: changeObjectBody.metadata.name,
-      status: {
-        response: "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf",
-        state: CONST.APISERVER.RESOURCE_STATE.SUCCEEDED
-      }
-    })
-
+    logger.info('Deleting K8SService resource with the following options:', changedOptions);
+    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+      .then(tpsK8SService => tpsK8SService.delete(changedOptions))
+      .then(() => eventmesh.apiServerClient.deleteResource({
+        resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
+        resourceId: changeObjectBody.metadata.name
+      }))
+      .catch(ServiceInstanceNotFound, () => eventmesh.apiServerClient.deleteResource({
+        resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
+        resourceType: CONST.APISERVER.RESOURCE_TYPES.TPSK8S,
+        resourceId: changeObjectBody.metadata.name
+      }));
   }
+
 }
 
 module.exports = TpsK8SOperator;
