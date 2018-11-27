@@ -20,11 +20,15 @@ const kc = require('kubernetes-client');
 const config = require('../../common/config');
 const Client = require('kubernetes-client').Client;
 const config = require('kubernetes-client').config;
-sampleDeployment = require('./cache_v1alpha_couchdb_cr.json');
-const crdJson =  require('./crd.json');
 
+const sampleDeployment = require('./deployment.json');
+const crdJson = require('./crd.json');
+const serviceJson = require('./service.json');
 
-
+const Client = require('kubernetes-client').Client
+const config = require('kubernetes-client').config
+const client = new Client({ config: config.fromKubeconfig(), version: '1.9' })
+client.loadSpec()
 
 class TpsK8SService extends BaseService {
   constructor(guid, plan) {
@@ -33,6 +37,7 @@ class TpsK8SService extends BaseService {
     this.plan = plan;
     this.platformManager = undefined;
     this.prefix = CONST.SERVICE_FABRIK_PREFIX;
+    this.servicePrefix = CONST.SERVICE_FABRIK_PREFIX+"-service";
     this.imageInfo = undefined;
   }
 
@@ -50,24 +55,36 @@ class TpsK8SService extends BaseService {
   }
 
   create(params) {
-    containerName = getContainerName();
-    sampleDeployment.metadata.name=containerName;
-    client.addCustomResourceDefinition(crdJson); 
-    client.loadSpec()
-      .then(()=> client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.post({ body: sampleDeployment }))
 
+    deploymentName = `${this.prefix}-${this.guid}`
+    serviceName =`${this.servicePrefix}-${this.guid}`
 
-
+    serviceJson.spec.selector.couchdb_cr = deploymentName
+    sampleDeployment.metadata.name = serviceName
+    serviceJson.metadata.name = deploymentName
   
-
-   }
-
-
-   getContainerName() {
-    return `${this.prefix}-${this.guid}`;
+    client.addCustomResourceDefinition(crdJson)
+     .then(() => client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.post({ body: sampleDeployment }))
+     .then(() => client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.get())
+     .then(couchdbs => console.log(couchdbs.body.items))
+     .then(()=>client.api.v1.namespaces('default').services.post({body: serviceJson}))
+     
   }
 
+  delete(params) {
 
+    deploymentName = `${this.prefix}-${this.guid}`
+    serviceName =`${this.servicePrefix}-${this.guid}`
+
+    serviceJson.spec.selector.couchdb_cr = deploymentName
+    sampleDeployment.metadata.name = serviceName
+    serviceJson.metadata.name = deploymentName
+
+    client.addCustomResourceDefinition(crdJson)
+      .then(()=>client.api.v1.namespaces('default').service(serviceName).delete())
+      .then(()=> client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs(deploymentName).delete())
+
+  }
 
   // create(params) {
 
@@ -88,7 +105,6 @@ class TpsK8SService extends BaseService {
   }
 
   delete(params) {
-
     nrc.run('kubectl -n my-namespace delete mysqlclusters my-app-db2')
     return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
   }
