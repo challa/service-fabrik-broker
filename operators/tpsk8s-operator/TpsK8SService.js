@@ -17,17 +17,14 @@ const BaseService = require('../BaseService');
 const BasePlatformManager = require('../../platform-managers/BasePlatformManager');
 const nrc = require('node-run-cmd');
 const kc = require('kubernetes-client');
-const config = require('../../common/config');
 const Client = require('kubernetes-client').Client;
-const config = require('kubernetes-client').config;
+const k8sconfig = require('kubernetes-client').config;
 
 const sampleDeployment = require('./deployment.json');
 const crdJson = require('./crd.json');
 const serviceJson = require('./service.json');
 
-const Client = require('kubernetes-client').Client
-const config = require('kubernetes-client').config
-const client = new Client({ config: config.fromKubeconfig(), version: '1.9' })
+const client = new Client({ config: k8sconfig.fromKubeconfig(), version: '1.9' })
 client.loadSpec()
 
 class TpsK8SService extends BaseService {
@@ -45,25 +42,47 @@ class TpsK8SService extends BaseService {
     this.platformManager = platformManager;
   }
 
-
   static createInstance(instanceId, options) {
     const planId = options.plan_id;
     const plan = catalog.getPlan(planId);
     const context = _.get(options, 'context');
     const tpsK8SService = new TpsK8SService(instanceId, plan);
+    tpsK8SService.assignPlatformManager(TpsK8SService.getPlatformManager(tpsK8SService.platformContext))
     return tpsK8SService;
+  }
+
+  get platformContext() {
+          const context = {
+            platform: CONST.PLATFORM.CF
+          };
+          return context;
+  }
+
+  static getPlatformManager(context) {
+    let platform = context.platform;
+    if (platform === CONST.PLATFORM.SM) {
+      platform = context.origin;
+    }
+    const PlatformManager = (platform && CONST.PLATFORM_MANAGER[platform]) ? require(`../../platform-managers/${CONST.PLATFORM_MANAGER[platform]}`) : ((platform && CONST.PLATFORM_MANAGER[CONST.PLATFORM_ALIAS_MAPPINGS[platform]]) ? require(`../../platform-managers/${CONST.PLATFORM_MANAGER[CONST.PLATFORM_ALIAS_MAPPINGS[platform]]}`) : undefined);
+    if (PlatformManager === undefined) {
+      return new BasePlatformManager(platform);
+    } else {
+      return new PlatformManager(platform);
+    }
   }
 
   create(params) {
 
-    deploymentName = `${this.prefix}-${this.guid}`
-    serviceName =`${this.servicePrefix}-${this.guid}`
+    var deploymentName = `${this.prefix}-${this.guid}`
+    var serviceName =`${this.servicePrefix}-${this.guid}`
 
+    
+    sampleDeployment.metadata.name = deploymentName
+
+    serviceJson.metadata.name = serviceName
     serviceJson.spec.selector.couchdb_cr = deploymentName
-    sampleDeployment.metadata.name = serviceName
-    serviceJson.metadata.name = deploymentName
   
-    client.addCustomResourceDefinition(crdJson)
+    Promise.try(()=> client.addCustomResourceDefinition(crdJson))
      .then(() => client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.post({ body: sampleDeployment }))
      .then(() => client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs.get())
      .then(couchdbs => console.log(couchdbs.body.items))
@@ -73,17 +92,16 @@ class TpsK8SService extends BaseService {
 
   delete(params) {
 
-    deploymentName = `${this.prefix}-${this.guid}`
-    serviceName =`${this.servicePrefix}-${this.guid}`
+    var deploymentName = `${this.prefix}-${this.guid}`
+    var serviceName =`${this.servicePrefix}-${this.guid}`
 
     serviceJson.spec.selector.couchdb_cr = deploymentName
-    sampleDeployment.metadata.name = serviceName
-    serviceJson.metadata.name = deploymentName
+    sampleDeployment.metadata.name = deploymentName
+    serviceJson.metadata.name = serviceName
 
-    client.addCustomResourceDefinition(crdJson)
+    Promise.try(()=> client.addCustomResourceDefinition(crdJson))
       .then(()=>client.api.v1.namespaces('default').service(serviceName).delete())
       .then(()=> client.apis['cache.example.com'].v1alpha1.namespaces('default').couchdbs(deploymentName).delete())
-
   }
 
   // create(params) {
@@ -104,10 +122,10 @@ class TpsK8SService extends BaseService {
     const options = {};
   }
 
-  delete(params) {
-    nrc.run('kubectl -n my-namespace delete mysqlclusters my-app-db2')
-    return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
-  }
+  // delete(params) {
+  //   nrc.run('kubectl -n my-namespace delete mysqlclusters my-app-db2')
+  //   return "81f0bc30-1d0a-4d21-b99c-d885bd4c2ccf"
+  // }
 
   bind(params) {
     /* jshint unused:false */

@@ -77,7 +77,7 @@ class TpsK8SOperator extends BaseOperator {
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
     logger.info('Creating tpsk8s resource with the following options:', changedOptions);
 
-    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+    return Promise.try(() => TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions))
       .then(tpsK8SService => tpsK8SService.create(changedOptions))
       .then(response => eventmesh.apiServerClient.updateResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
@@ -115,7 +115,7 @@ class TpsK8SOperator extends BaseOperator {
     const changedOptions = JSON.parse(changeObjectBody.spec.options);
     assert.ok(changedOptions.plan_id, `Argument 'spec.options' should have an argument plan_id to process the request`);
     logger.info('Deleting K8SService resource with the following options:', changedOptions);
-    return TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions)
+    return  Promise.try(() => TpsK8SService.createInstance(changeObjectBody.metadata.name, changedOptions))
       .then(tpsK8SService => tpsK8SService.delete(changedOptions))
       .then(() => eventmesh.apiServerClient.deleteResource({
         resourceGroup: CONST.APISERVER.RESOURCE_GROUPS.DEPLOYMENT,
@@ -128,7 +128,6 @@ class TpsK8SOperator extends BaseOperator {
         resourceId: changeObjectBody.metadata.name
       }));
   }
-
 }
 
 module.exports = TpsK8SOperator;
